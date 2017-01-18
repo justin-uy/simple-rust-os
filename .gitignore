@@ -1,3 +1,6 @@
 *.o
 *.bin
 build/
+target/
+Cargo.lock
+*.log

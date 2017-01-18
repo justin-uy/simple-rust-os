@@ -7,6 +7,9 @@ grub_cfg := src/arch/$(arch)/grub.cfg
 assembly_source_files := $(wildcard src/arch/$(arch)/*.nasm)
 assembly_object_files := $(patsubst src/arch/$(arch)/%.nasm, build/arch/$(arch)/%.o, $(assembly_source_files))
 
+target ?= $(arch)-unknown-linux-gnu
+rust_os := target/$(target)/debug/libsimple_rust_os.a
+
 .PHONY: all clean run iso
 
 all: $(kernel)
@@ -26,8 +29,11 @@ $(iso): $(kernel) $(grub_cfg)
 	@grub-mkrescue -o $(iso) build/isofiles 2> /dev/null
 	@rm -r build/isofiles
 
-$(kernel): $(assembly_object_files) $(linker_script)
-	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files)
+$(kernel): cargo $(rust_os) $(assembly_object_files) $(linker_script)
+	@ld -n --gc-sections -T $(linker_script) -o $(kernel) $(assembly_object_files) $(rust_os)
+
+cargo:
+	@cargo build --target $(target)
 
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.nasm
 	@mkdir -p $(shell dirname $@)
