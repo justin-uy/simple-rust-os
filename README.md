@@ -1,11 +1,15 @@
-simple-rust-os - learning the basics of how Operating Systems are constructed
+# simple-rust-os - learning the basics of how Operating Systems are constructed
 
 Following the tutorials by Philipp Oppermann: http://os.phil-opp.com/
 
-[x] Minimal x86 kernel that boots using multiboot 2.0 spec
-[x] Setup page tables and GDT to enter long mode
-[x] Setup rust and call compiled rust binary in kernel
-[ ] Print to Screen - create a VGA Text Buffer abstraction for writing strings in different colors to the screen.
+## Progress
+
+* [x] Minimal x86 kernel that boots using multiboot 2.0 spec
+* [x] Setup page tables and GDT to enter long mode
+* [x] Setup rust and call compiled rust binary in kernel
+* [ ] Print to Screen - create a VGA Text Buffer abstraction for writing strings in different colors to the screen.
+
+## Issues / Notes
 
 There are issues building the ISO natively in my Ubuntu installation because my
 hardware utilizes an EFI system partition. To get around this, I started using
