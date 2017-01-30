@@ -8,9 +8,4 @@ crate-type = ["staticlib"]
 
 [dependencies]
 rlibc = "0.1.4"
-
-[profile.dev]
-panic = "abort"
-
-[profile.release]
-panic = "abort"
+volatile = "0.1.0"
