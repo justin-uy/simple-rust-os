@@ -2,12 +2,15 @@
 #![no_std]
 extern crate rlibc;
 extern crate volatile;
+extern crate spin;
+
+#[macro_use]
 mod vga_buffer;
 
 #[no_mangle]
 pub extern fn rust_main() {
-    vga_buffer::print_something();
-
+    vga_buffer::clear_screen();
+    println!("Hey, Justin. You are {} something years old!", 20);
     loop {}
 }
 

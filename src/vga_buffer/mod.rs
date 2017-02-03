@@ -79,8 +79,38 @@ impl Writer {
         unsafe { self.buffer.get_mut() }
     }
 
-    fn new_line(&mut self) { /* TODO */ }
+    fn new_line(&mut self) {
+        for row in 1..BUFFER_HEIGHT {
+            for col in 0..BUFFER_WIDTH {
+                let buffer = self.buffer();
+                let character = buffer.chars[row][col].read();
+                buffer.chars[row - 1][col].write(character);
+            }
+        }
+        self.clear_row(BUFFER_HEIGHT - 1);
+        self.column_position = 0;
+    }
+
+    fn clear_row(&mut self, row: usize) {
+        let blank = ScreenChar {
+            ascii_character: b' ',
+            color_code: self.color_code,
+        };
+
+        for col in 0..BUFFER_WIDTH {
+            let buffer = self.buffer();
+            buffer.chars[row][col].write(blank);
+        }
+    }
 }
+
+use spin::Mutex;
+
+pub static WRITER: Mutex<Writer> = Mutex::new(Writer {
+    column_position: 0,
+    color_code: ColorCode::new(Color::LightGreen, Color::Black),
+    buffer: unsafe { Unique::new(0xb8000 as *mut _) },
+});
 
 use core::fmt;
 
@@ -93,16 +123,25 @@ impl fmt::Write for Writer {
     }
 }
 
-pub fn print_something() {
+pub fn print(args: fmt::Arguments) {
     use core::fmt::Write;
+    WRITER.lock().write_fmt(args).unwrap();
+}
 
-    let mut writer = Writer {
-        column_position: 0,
-        color_code: ColorCode::new(Color::LightGreen, Color::Black),
-        buffer: unsafe { Unique::new(0xb8000 as *mut _) },
-    };
+macro_rules! print {
+    ($($arg:tt)*) => ({
+        $crate::vga_buffer::print(format_args!($($arg)*));
+    });
+}
 
-    writer.write_byte(b'I');
-    writer.write_str("'m Justin! ");
-    write!(writer, "I am {} something years old", 20);
+macro_rules! println {
+    ($fmt:expr) => (print!(concat!($fmt, "\n")));
+    ($fmt:expr, $($arg:tt)*) => (print!(concat!($fmt, "\n"), $($arg)*));
+}
+
+
+pub fn clear_screen() {
+    for _ in 1..BUFFER_HEIGHT {
+        println!("");
+    }
 }
